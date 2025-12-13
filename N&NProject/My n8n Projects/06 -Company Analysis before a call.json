@@ -1,0 +1,192 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        4400,
+        3808
+      ],
+      "id": "2d4492a3-77ea-4f3c-a54c-9edff71629f1",
+      "name": "When chat message received",
+      "webhookId": "7319d100-4a11-4aa1-bf6c-98bfebc34a7b"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "تو یک متخصص جستجو در مورد نام شرکت ها هستی که قراره با دریافت نام شرکت، حوزه فعالیت و اطلاعات سایت و محتوای اون شرکت رو استخراج کنی. اندازه 100 کلمه ، خلاصه مفید و کاربردی و عملیاتی.\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        4800,
+        3712
+      ],
+      "id": "961fc309-55fd-4f47-a66d-4c7ebe1054f3",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        4656,
+        4032
+      ],
+      "id": "878be737-6642-49aa-85cb-4d8667a78626",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "EwXnjh3WZ9WP1Tcm",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@tavily/n8n-nodes-tavily.tavilyTool",
+      "typeVersion": 1,
+      "position": [
+        5008,
+        3952
+      ],
+      "id": "db07282f-4f0e-4913-af98-2855122002ac",
+      "name": "Search in Tavily",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "model": "tts-1-hd",
+        "input": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        5280,
+        3808
+      ],
+      "id": "13d6ccf9-665d-42ae-b191-744a1744570d",
+      "name": "Generate audio",
+      "credentials": {
+        "openAiApi": {
+          "id": "EwXnjh3WZ9WP1Tcm",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAudio",
+        "chatId": "372510105",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5552,
+        3808
+      ],
+      "id": "7954a22a-db98-46e6-94ca-54abe6833ffa",
+      "name": "Send an audio file",
+      "webhookId": "8fc95275-97dd-47b2-8c0c-f1ffd7261454",
+      "credentials": {
+        "telegramApi": {
+          "id": "qeYxIGIVNw3ZTt4f",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        4864,
+        4064
+      ],
+      "id": "ba7d802c-3179-48b3-a784-0c5bf8e25596",
+      "name": "Simple Memory"
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Generate audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search in Tavily": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Generate audio": {
+      "main": [
+        [
+          {
+            "node": "Send an audio file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c7c1e648d295a59bb0af7261b0331e856299c412549a48f25be53f7443c73d64"
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "outputFieldName": "={{ $('Telegram Trigger').item.json.message.date }}",
+        "options": {
+          "timezone": ""
+        }
+      },
+      "type": "n8n-nodes-base.dateTimeTool",
+      "typeVersion": 2,
+      "position": [
+        160,
+        144
+      ],
+      "id": "bd6980aa-f261-4984-8299-d5cebaf2450e",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "chatId": "372510105",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        352,
+        -64
+      ],
+      "id": "3147f5fd-db4c-4490-84b5-cd69861ab8ff",
+      "name": "Send a text message",
+      "webhookId": "e1c4f7ad-5349-4f0e-9454-15f52341ffee",
+      "credentials": {
+        "telegramApi": {
+          "id": "qeYxIGIVNw3ZTt4f",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "372510105",
+        "contextWindowLength": 1000
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        16,
+        144
+      ],
+      "id": "b2f61174-eaef-4b09-9a92-3b1a02478d6a",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": "z-ai/glm-4.5-air:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        144
+      ],
+      "id": "7f777afc-bb51-45f8-9bfc-cd301777c853",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "FM0HV4WLhDd6RtUu",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "«از این لحظه نقش دستیار مدیریت مالی شخصی من را بر عهده بگیر. وظایف تو شامل موارد زیر است:\n\nثبت و دسته‌بندی تمام تراکنش‌هایی که من اعلام می‌کنم (درآمد، هزینه، بدهی، سرمایه‌گذاری و اهداف مالی).\n\nارائه تحلیل‌های دوره‌ای درباره وضعیت مالی من، شامل جریان نقدی، روند هزینه‌ها، سهم هر دسته، و پیش‌بینی آینده.\n\nکمک به من در تعیین و مدیریت اهداف مالی مثل پس‌انداز، خرید دارایی، کاهش بدهی یا مدیریت بودجه ماهانه.\n\nهشدار دادن در صورت مشاهده رفتارهای مالی پرخطر یا افزایش بیش از حد هزینه‌ها.\n\nارائه پیشنهادهای مالی عملی و قابل‌اجرا براساس داده‌هایی که ارائه می‌کنم.\n\nهر زمان اطلاعات جدید وارد کردم، آن را ذخیره کن و گزارش‌های جدید را براساس آخرین داده‌ها ارائه بده.\n\nدر صورتی که ازت چیزی پرسیدم، همیشه بر اساس داده‌های ذخیره‌شده و وضعیت مالی من پاسخ بده.\n\nاگر نیاز به پرسیدن سوال برای تکمیل اطلاعات داشتی، فقط سوال‌های ضروری بپرس. اکنون تایید کن که آماده‌ای و بگو برای شروع چه اطلاعات پایه‌ای نیاز داری.»"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        0,
+        -64
+      ],
+      "id": "429fd99b-00e8-4bd7-83b8-28ebe5f469b7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -208,
+        -64
+      ],
+      "id": "dfa6e140-f365-4e0d-8d42-ffe804d35c5e",
+      "name": "Telegram Trigger",
+      "webhookId": "691586cf-47b8-421a-9544-68077fe760ab",
+      "credentials": {
+        "telegramApi": {
+          "id": "qeYxIGIVNw3ZTt4f",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Date & Time": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c7c1e648d295a59bb0af7261b0331e856299c412549a48f25be53f7443c73d64"
+  }
+}

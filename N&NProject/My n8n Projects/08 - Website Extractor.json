@@ -1,0 +1,340 @@
+{
+  "name": "08 - Website Extractor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -160,
+        336
+      ],
+      "id": "64f352d4-aa93-4fe9-b0c0-67b4ebe123d4",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://production-lon.browserless.io/content?token=2T7jjvh6GWRGAZ279242fa8aa210381f32cc553768364c5a3",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Header",
+              "value": "User-Agent: Mozilla/5.0"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"url\": \"https://www.khanoumi.com/tags/festival-js?sort=Newest\",\n  \"waitForSelector\": { \"selector\": \"a.relative\", \"timeout\": 10000 },\n  \"bestAttempt\": true\n}\n",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        32,
+        336
+      ],
+      "id": "280b54a2-6fe7-4d65-86e2-5cafca6cb4e0",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "cards",
+              "cssSelector": "a.relative",
+              "returnValue": "html",
+              "returnArray": true
+            },
+            {
+              "key": "hrefs",
+              "cssSelector": "a.relative",
+              "returnValue": "attribute",
+              "attribute": "href",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        336
+      ],
+      "id": "d8dfdd8c-ad27-4776-a510-27022c5e8a96",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Expect: item.json.cards = [inner HTML of each <a.relative>]\n//         item.json.hrefs = [href attr for each <a.relative>] (same index)\nconst toEnglish = s =>\n  (s||'')\n    .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))\n    .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));\n\nconst onlyDigits = s => {\n  s = toEnglish(s).replace(/[\\s,٬٫]/g, '').replace(/[^0-9]/g, '');\n  return s ? Number(s) : null;\n};\n\nconst pick = (html, re) => (html.match(re)?.[1] || '').trim();\n\nconst out = [];\nfor (const it of items) {\n  const cards = it.json.cards || [];\n  const hrefs = it.json.hrefs || [];\n  for (let i = 0; i < cards.length; i++) {\n    const card = cards[i];\n\n    // keep only items with the \"جدید\" badge\n    if (!/>\\s*جدید\\s*</.test(card)) continue;\n\n    const href = (hrefs[i] || '').trim();\n    const url  = href.startsWith('http') ? href : `https://www.khanoumi.com${href}`;\n\n    const name = pick(card, /<h3[^>]*>([\\s\\S]*?)<\\/h3>/i).replace(/<[^>]+>/g, '');\n\n    // % off: look for any number just before the percent sign\n    const pMatch = card.match(/([\\d۰-۹٠-٩]{1,3})\\s*٪/);\n    const percent = pMatch ? Number(toEnglish(pMatch[1])) : null;\n\n    const beforeText = pick(card, /<span[^>]*class=\"[^\"]*line-through[^\"]*\"[^>]*>([^<]+)<\\/span>/i);\n    const afterText  = pick(card, /<span[^>]*class=\"[^\"]*font-medium[^\"]*\"[^>]*>([^<]+)<\\/span>/i);\n\n    const priceBefore = onlyDigits(beforeText);\n    const priceAfter  = onlyDigits(afterText);\n\n    if (name && url) {\n      out.push({ json: {\n        \"Product Name\": name,\n        \"Percentage Off\": percent,\n        \"Price Before\": priceBefore,\n        \"Price After\": priceAfter,\n        \"URL\": url\n      }});\n    }\n  }\n}\nreturn out.slice(0, 100);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        336
+      ],
+      "id": "97555ce6-a0a4-4c1f-aa50-bbae2200d6e8",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "URL",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        608,
+        336
+      ],
+      "id": "8042b290-0aed-4df2-ba62-f2876df3133f",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1GtLmSv1ISgVfRxibijtLGTtRSDD3Ml6AFe9Eb0H4YOo",
+          "mode": "list",
+          "cachedResultName": "Khanoumi",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1GtLmSv1ISgVfRxibijtLGTtRSDD3Ml6AFe9Eb0H4YOo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1GtLmSv1ISgVfRxibijtLGTtRSDD3Ml6AFe9Eb0H4YOo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Product Name": "={{ $json[\"Product Name\"] }}",
+            "Percentage Off": "={{ $json[\"Percentage Off\"] }}",
+            "Price Before": "={{ $json[\"Price Before\"] }}",
+            "Price After": "={{ $json[\"Price After\"] }}",
+            "URL": "={{ $json.URL }}"
+          },
+          "matchingColumns": [
+            "Product Name"
+          ],
+          "schema": [
+            {
+              "id": "Product Name",
+              "displayName": "Product Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Percentage Off",
+              "displayName": "Percentage Off",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Price Before",
+              "displayName": "Price Before",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Price After",
+              "displayName": "Price After",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        832,
+        336
+      ],
+      "id": "ce89236e-42ba-453f-a222-6ea8453c4d3f",
+      "name": "Append or update row in sheet",
+      "alwaysOutputData": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "7TLOVZJZPreu985q",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "   ##  1. Get Browserless API Token\n\nSign up at Browserless and grab your free API token, then append it to the content endpoint:  \n`https://production-lon.browserless.io/content?token=YOUR_API_TOKEN`\n\n##  2. Set up Google Sheets Credentials\n\nIn n8n → Credentials → create a Google Sheets OAuth2 Credential.  \nAuthorize access so n8n can use your Google Sheets.\n\n##  3. Prepare Your Google Sheet\n\nCreate a new sheet with this exact header row (no merged cells):  \n`Product Name | Percentage Off | Price Before | Price After | URL`",
+        "height": 672,
+        "width": 1328,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        -96
+      ],
+      "id": "49f1c5ce-e9de-488e-80c1-1eec86128c8f",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "\n![Logo](https://micopon.ir/wp-content/uploads/2021/10/khanoumi.jpg)\n",
+        "height": 352,
+        "width": 336,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        -64
+      ],
+      "typeVersion": 1,
+      "id": "2d9ee8b3-323c-4664-a572-fbd85e7d55bf",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "12e51869-b433-4810-b83b-8bb2346ca211",
+  "meta": {
+    "instanceId": "9f83f065a153a82327c1eb5e9d85d2f64b76af1671a19d2f39253eab7ae8868c"
+  },
+  "id": "pfyjKipFis6CCJQS",
+  "tags": [
+    {
+      "createdAt": "2025-08-04T20:04:27.389Z",
+      "updatedAt": "2025-08-04T20:04:27.389Z",
+      "id": "JmksjhoNPkHEqzD5",
+      "name": "sheets"
+    },
+    {
+      "createdAt": "2025-09-26T05:38:55.472Z",
+      "updatedAt": "2025-09-26T05:38:55.472Z",
+      "id": "R1rUgxMqJ3HqGIV5",
+      "name": "Scrape"
+    },
+    {
+      "createdAt": "2025-08-24T03:25:53.064Z",
+      "updatedAt": "2025-08-24T03:25:53.064Z",
+      "id": "pGR20js5ytDmOkkx",
+      "name": "FinalProjects"
+    },
+    {
+      "createdAt": "2025-09-26T05:39:03.715Z",
+      "updatedAt": "2025-09-26T05:39:03.715Z",
+      "id": "tyKN5ZA8M89269Fw",
+      "name": "httprequest"
+    }
+  ]
+}

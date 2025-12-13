@@ -1,0 +1,476 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        7184,
+        4304
+      ],
+      "id": "9569383e-a423-4518-9e85-b24dd7b5d613",
+      "name": "Telegram Trigger1",
+      "webhookId": "c0eee8d7-a6cd-42b5-8ea9-47c43e79c2ec",
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "qeYxIGIVNw3ZTt4f",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ead608af-7a53-4330-a679-6a5df4bd5ad8",
+              "name": "text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7712,
+        4320
+      ],
+      "id": "4e9776d2-f5c7-4507-ab7c-e7cda4447054",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "abasforoudi6@gmail.om"
+        },
+        "eventId": "={{ $fromAI(\"Event_ID\",\"it is the id of the specific event\") }}",
+        "updateFields": {
+          "end": "={{ $fromAI(\"end\",\"it is the meeting date ending time\") }}",
+          "start": "={{ $fromAI(\"Start\",\"it is the meeting date starting time\") }}",
+          "summary": "={{ $fromAI(\"eventName\",\"the name of the calendar event\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        8416,
+        4608
+      ],
+      "id": "b34fa091-5aeb-4dc0-819f-6a2e63e6bccb",
+      "name": "Update calendar"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to create a new calendar event.",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "abasforoudi6@gmail.om"
+        },
+        "start": "={{ $fromAI(\"Start\",\"it is the meeting date starting time\") }}",
+        "end": "={{ $fromAI(\"end\",\"it is the meeting date ending time\") }}",
+        "additionalFields": {
+          "summary": "={{ $fromAI(\"eventName\",\"the name of the calendar event\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        8032,
+        4768
+      ],
+      "id": "15dd164a-633c-4506-ba9d-51f30a8aafe0",
+      "name": "Create event"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "abasforoudi6@gmail.om"
+        },
+        "eventId": "={{ $fromAI(\"Event_ID\",\"it is the id of the specific event\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        8176,
+        4768
+      ],
+      "id": "06a4e010-3a3e-4c06-acb5-8b1a94b234cf",
+      "name": "Delete event"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "=abasforoudi6@gmail.om",
+          "mode": "id"
+        },
+        "returnAll": true,
+        "timeMin": "={{ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ $now.plus({ week: 4 }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        8304,
+        4688
+      ],
+      "id": "c49afed6-6b1e-48f5-aadb-0d51b356a032",
+      "name": "GetAll events"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        7824,
+        4160
+      ],
+      "id": "d7523df9-d6d4-4cce-ba8b-c420def42c85",
+      "name": "Transcribe",
+      "credentials": {
+        "openAiApi": {
+          "id": "EwXnjh3WZ9WP1Tcm",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "502e50b6-9903-44c0-9a0d-a3bc772eae71",
+                    "leftValue": "={{ $json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "442d61ad-3a99-4d7a-93cf-753a7c877460",
+                    "leftValue": "={{ $json.message.text || \"\" }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        7424,
+        4304
+      ],
+      "id": "7df907c5-21b4-49de-8d60-a2533e1b268d",
+      "name": "Text or Audio"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger1').item.json.update_id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        7920,
+        4688
+      ],
+      "id": "ef855e6e-42a6-4e2c-ab41-14ac01cdf690",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "=You are a helpful assistant and answer in the language that the person talks to you. The current date is{{ $now }}\n\nYou use the LLM when nothing is asked about the calendar.\nWhen asked to create an event, use the create event tool. \nWhen an event has to be deleted, use the delete tool. \nWhen asked about an event or a specific date, use the get tool. \nWhen something needs to be updated, use the update tool."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        7984,
+        4320
+      ],
+      "id": "8c3f45dc-616d-4d36-bfa1-4343b2225d8c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger1').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        8448,
+        4320
+      ],
+      "id": "f1a0978e-0553-47ed-9c5f-9d240a8dc48a",
+      "name": "Telegram",
+      "webhookId": "c7f74669-a664-4c32-8579-efa03d86ff4e",
+      "credentials": {
+        "telegramApi": {
+          "id": "qeYxIGIVNw3ZTt4f",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        7632,
+        4160
+      ],
+      "id": "55b9b59f-4127-4f04-b7c0-292d435a873d",
+      "name": "Telegram1",
+      "webhookId": "1fe1ac8f-0983-40fb-bb18-6029c1e99c91",
+      "credentials": {
+        "telegramApi": {
+          "id": "qeYxIGIVNw3ZTt4f",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        7792,
+        4608
+      ],
+      "id": "bad46aee-63e5-4b37-82f1-5349833a05ec",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "EwXnjh3WZ9WP1Tcm",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Text or Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create event": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete event": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetAll events": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text or Audio": {
+      "main": [
+        [
+          {
+            "node": "Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram1": {
+      "main": [
+        [
+          {
+            "node": "Transcribe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c7c1e648d295a59bb0af7261b0331e856299c412549a48f25be53f7443c73d64"
+  }
+}

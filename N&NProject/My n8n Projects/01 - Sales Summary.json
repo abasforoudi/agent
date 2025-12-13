@@ -1,0 +1,121 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are in charge of client orders. Your job is to take incoming information regarding new orders and give a nice summary that will be emailed to the team. The email should be signed off from \"Customer Success Team\".\n\nHere is the information on client orders.\nOrder ID:{{ $json['Order ID'] }}\nCustomer Name:{{ $json['Customer Name'] }}\nProduct:{{ $json.Product }}\nQuantity:{{ $json.Quantity }}\nPrice:{{ $json.Price }}\nOrder Date:{{ $json['Order Date'] }}\nStatus:{{ $json.Status }}\n\nPlease output the following parameters:\nEmail Subject\nEmail Body",
+              "role": "system"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        5024,
+        8000
+      ],
+      "id": "30502a44-6d6b-4a98-896e-bd98a2d915cd",
+      "name": "Summarize",
+      "credentials": {
+        "openAiApi": {
+          "id": "EwXnjh3WZ9WP1Tcm",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "abasforoudi6@gmail.com",
+        "subject": "={{ $json.message.content['Email Subject'] }}",
+        "emailType": "text",
+        "message": "={{ $json.message.content['Email Body'] }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        5360,
+        8128
+      ],
+      "id": "d19d90c9-fa98-4f7e-a75a-cf418ba77b54",
+      "name": "Send a message",
+      "webhookId": "c963b4b4-46ed-4251-8978-1f1e34be8528"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1b0LQxSzn6zbHPx_R0Np9eVHi8eXUB5jImc9v7WAWpf8",
+          "mode": "list",
+          "cachedResultName": "Sales List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1b0LQxSzn6zbHPx_R0Np9eVHi8eXUB5jImc9v7WAWpf8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1b0LQxSzn6zbHPx_R0Np9eVHi8eXUB5jImc9v7WAWpf8/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        4800,
+        8128
+      ],
+      "id": "8cb19cf0-dff5-442e-bc2a-5462804c4b50",
+      "name": "Google Sheets Trigger"
+    }
+  ],
+  "connections": {
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c7c1e648d295a59bb0af7261b0331e856299c412549a48f25be53f7443c73d64"
+  }
+}

@@ -1,0 +1,290 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "abasforoudi6@gmail.com"
+        },
+        "returnAll": true,
+        "options": {
+          "timeMin": "={{ $today }}",
+          "timeMax": "={{ $today.plus({ days: 1 }) }}",
+          "singleEvents": true,
+          "timeZone": {
+            "__rl": true,
+            "value": "Asia/Tehran",
+            "mode": "list",
+            "cachedResultName": "Asia/Tehran"
+          }
+        }
+      },
+      "id": "6e49cd90-2b9e-4d14-a2ed-1605b68c321e",
+      "name": "Get meetings for today",
+      "type": "n8n-nodes-base.googleCalendar",
+      "position": [
+        3408,
+        3088
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "id": "e4238106-7710-4eda-b9a1-2a593f2af78a",
+      "name": "Every morning @ 6",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        3104,
+        3088
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "Name",
+              "value": "={{ $json.summary }}"
+            },
+            {
+              "name": "Time",
+              "value": "={{ $json.start }}"
+            },
+            {
+              "name": "Guests",
+              "value": "={{ $json.attendees }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f619ee9f-01bb-4bdf-9aac-dd0762a2469e",
+      "name": "Set",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3680,
+        3088
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "functionCode": "let message = \"*Your meetings today are:* \\n\";\n\nfor (item of items) {\n  const time = new Date(item.json.Time.dateTime);\n  const formattedTime = new Intl.DateTimeFormat('fa-IR', {\n    hour: 'numeric',\n    minute: 'numeric',\n    timeZone: item.json.Time.timeZone\n  }).format(time);\n\n  message += `* ${item.json.Name} | ${formattedTime}\\n`;\n\n  if (item.json.Guests && item.json.Guests.length > 0) {\n    message += ' - ';\n    item.json.Guests.forEach((guest, index) => {\n      message += `${guest.email}${index < item.json.Guests.length - 1 ? ', ' : ''}`;\n    });\n    message += '\\n';\n  } else {\n    message += ' ;- No guests\\n';\n  }\n}\n\nreturn [{ json: { message } }];\n"
+      },
+      "id": "6490728b-a981-4cac-b3c4-dc0ca3557b4f",
+      "name": "Function",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        3952,
+        3088
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## This workflow \nprovides a convenient and automated way to stay on top of your daily meetings and improve your personal productivity.\n\n\n",
+        "height": 770,
+        "width": 1720,
+        "color": 7
+      },
+      "id": "a2e76916-bd46-4806-937a-b8ff2ea3ef22",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2944,
+        2752
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## setup:\n###    - Google Calendar connected to n8n\n###    - A Telegram bot created and connected to n8n\n###    - Your Telegram user ID specified",
+        "height": 151.60560223016907,
+        "width": 430.6727493433055
+      },
+      "id": "1acf3be7-a386-4424-90a7-ed80a42bbe43",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2976,
+        2848
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "chatId": "73260826",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "4648388c-0904-4ce9-8eda-c865617ebe47",
+      "name": "Send a text message",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        4496,
+        3088
+      ],
+      "typeVersion": 1.1,
+      "webhookId": "220deccd-2e28-4b86-81c3-a0354fa8fecb",
+      "credentials": {
+        "telegramApi": {
+          "id": "qeYxIGIVNw3ZTt4f",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "تو یک منشی هوشمند هستی. وظیفه‌ات این است که امروز و فردا را در تقویم‌های مشخص بررسی کنی، همه رویدادها را جمع‌آوری، مرتب‌سازی و خلاصه فارسی ارسال کنی.\nقواعد:\nبازهٔ زمانی: از شروع امروز تا پایان امروز (Asia/Tehran).\nاز همهٔ تقویم‌ها (لیست داده‌شده) بخوان؛ رویدادهای تکراری یا هم‌پوشان را ادغام نکن؛ فقط مرتب کن.\nترتیب بر اساس زمان شروع (اول زودترها).\nاگر هیچ رویدادی نبود: «امروز جلسه‌ای ثبت نشده است.»\nخروجی فقط متن فارسی تمیز باشد (بدون کد و بدون نشانه‌گذاری مشکل‌ساز).\nاگر داده‌ای ناقص بود (مثلاً timeZone یا attendees)، با مقدار امن/جایگزین نمایش بده و خروجی را متوقف نکن.\n\nمتن خروجی رو تمیز و هر ایونت رو با فاصله برام بنویس"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        4176,
+        2944
+      ],
+      "id": "f2a7f086-723e-4858-aac3-1523825b3d73",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        4032,
+        3296
+      ],
+      "id": "ba425ae9-71ee-44ef-872c-988efdd0a6f1",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "EwXnjh3WZ9WP1Tcm",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Function').item.json.message }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        4272,
+        3312
+      ],
+      "id": "68419270-5832-4e30-bab4-5e8532e87b31",
+      "name": "Simple Memory"
+    }
+  ],
+  "connections": {
+    "Get meetings for today": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every morning @ 6": {
+      "main": [
+        [
+          {
+            "node": "Get meetings for today",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "Function",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Function": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c7c1e648d295a59bb0af7261b0331e856299c412549a48f25be53f7443c73d64"
+  }
+}

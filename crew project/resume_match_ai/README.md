@@ -53,14 +53,3 @@ will run the create the following files
 ```bash
 crewai test --n_iterations 1 --model claude-3-haiku-20240307
 ```
-
-# Resume Match AI
-
-CrewAI App
-[Resume Match CrewAI](https://resume-match-ai-599528b1-cf57-446a-8922-4b5-ec219a74.crewai.com)
-A production-ready CrewAI application that intelligently matches resumes to job descriptions using multi-agent AI systems. The app analyzes resume content and job requirements to provide compatibility scores and detailed matching insights.
-
-
-Gradio App Demo
-[Resume Match AI](https://huggingface.co/spaces/kenneth-andales/resume-match-ai)
-Interactive Gradio interface deployed on Hugging Face Spaces that integrates with the CrewAI backend API. This user-friendly demo allows users to upload resumes and job descriptions to instantly see matching scores and compatibility analysis in a clean, accessible web interface.

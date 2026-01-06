@@ -289,11 +289,7 @@ This is an educational project for learning purposes.
 
 This project is part of an AI agents learning curriculum. Feel free to fork and experiment!
 
-## 👨‍💻 Author
 
-Created as part of the Andela AI Agents training program.
-
----
 
 **Built with ❤️ using OpenAI Agents SDK and Gradio**
 

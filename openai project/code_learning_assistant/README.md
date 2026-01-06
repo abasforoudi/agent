@@ -2,9 +2,6 @@
 
 An intelligent AI-powered system that helps you **learn**, **understand**, and **document** code in any programming language. Built with OpenAI's Agents SDK and Gradio.
 
-![Python](https://img.shields.io/badge/python-3.9+-blue.svg)
-![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-green.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 ## 🌟 Features
 

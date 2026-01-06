@@ -1,38 +1,164 @@
-My Automation & AI Projects
+🤖 Agent — AI Automation & Multi-Agent Systems
 
-Welcome to my GitHub repository where I share my personal automation projects using n8n, Cerw, and OpenAI SDK. This repository demonstrates practical workflows, integrations, and AI-powered automation.
+A comprehensive portfolio of AI agents, business automations, and multi-agent systems built for real-world use cases across sales, finance, operations, research, and content generation.
 
-Projects Included
+This repository brings together practical implementations using:
 
-n8n Workflows
+n8n for workflow automation
 
-A collection of custom n8n workflows for automating tasks, connecting apps, and handling data pipelines.
+Crew / Multi-Agent frameworks for agent orchestration
 
-Each workflow includes detailed steps and instructions for deployment.
+OpenAI SDK for AI-powered applications
 
-Cerw Projects
+🔹 What this repository includes
 
-Projects built with Cerw, showcasing custom agents and automated solutions for different use cases.
+This repo is structured as a monorepo containing three main categories of projects:
 
-OpenAI SDK Integrations
+1. n8n Automations
 
-Scripts and examples using OpenAI SDK for building AI-driven applications and services, including chatbots, data analysis, and content generation.
+Production-ready workflows that automate:
 
-How to Use
+Sales reporting
 
-Clone the repository:
+Meeting reminders & notifications
 
-git clone https://github.com/abasforoudi/agent
+Company research before sales calls
 
+Financial summaries
 
-Follow the instructions in each project folder to set up dependencies and run the workflows or scripts.
+News aggregation
 
-Ensure you have the required credentials (API keys) for n8n, Cerw, or OpenAI services.
+Website data extraction
 
-Contributing
+Email order processing
 
-Feel free to fork the repository, experiment with workflows, and share improvements via pull requests.
+Focus:
+Operational efficiency, time-saving automation, and decision support.
 
-Contact
+2. Multi-Agent Systems (Crew Projects)
 
-For any questions or collaboration inquiries, reach out via GitHub issues or contact me directly.
+A collection of agent-based architectures that simulate real teams and complex reasoning flows:
+
+Examples:
+
+Financial researcher agents
+
+Stock & crypto market analyzers
+
+Resume-to-job matching systems
+
+Engineering team simulation
+
+Storytelling battles between agents
+
+Trading strategy agents
+
+Focus:
+Agent orchestration, task delegation, reasoning pipelines, and autonomous workflows.
+
+3. OpenAI SDK Applications
+
+End-to-end AI systems built with the OpenAI SDK:
+
+Examples:
+
+AI sales agents
+
+Automated inventory management
+
+Book writing with agents
+
+Code learning assistants
+
+Book review & analysis systems
+
+Healthcare AI assistants
+
+Focus:
+Building production-grade AI tools, not just demos.
+
+🧠 Core Philosophy
+
+This repository is not a collection of experiments.
+It is a portfolio of applied AI systems designed with three principles:
+
+Automation first – reduce manual work
+
+Agents over scripts – build reasoning systems, not one-off tools
+
+Business impact – every project solves a real operational problem
+
+🛠️ Tech Stack
+
+Python
+
+n8n
+
+OpenAI SDK
+
+Multi-Agent frameworks (Crew / Agent Orchestration)
+
+Jupyter Notebook
+
+REST APIs
+
+Workflow automation tools
+
+📂 Repository Structure
+agent/
+│
+├── n8n projects/
+│   └── Business & operations automations
+│
+├── crew projects/
+│   └── Multi-agent systems & orchestration
+│
+├── openai projects/
+│   └── AI applications built with OpenAI SDK
+│
+└── README.md
+
+👤 About the Author
+
+Built by Abbas Foroudi
+AI Automation Specialist focused on:
+
+Designing agent-based systems
+
+Building end-to-end AI workflows
+
+Automating business processes across:
+
+Sales
+
+Finance
+
+Operations
+
+Marketing
+
+Research
+
+📌 Use cases covered in this repo
+
+Sales intelligence & CRM automation
+
+Financial analysis & reporting
+
+HR & recruitment AI
+
+Content generation & storytelling
+
+Market research & monitoring
+
+Education & coding assistants
+
+Inventory & operations automation
+
+🚀 Vision
+
+To build a future where:
+
+AI agents are not assistants — they are digital team members.
+
+This repository is a growing collection of that vision in practice.
